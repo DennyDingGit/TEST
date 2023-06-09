@@ -1,0 +1,52 @@
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>ONE DAY</title>
+  <style type="text/css">
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: pink;
+    }
+
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script>
+  <script src="scene.js"></script>
+  <script src="player.js"></script>
+  <script src="enemy.js"></script>
+  <script src="menu.js"></script>
+
+
+
+</head>
+
+<body>
+  <script>
+    var config = {
+      type: Phaser.AUTO,
+      width: 900,
+      height: 600,
+      physics: {
+        default: 'arcade',
+        arcade: {
+          debug: true,
+          // 設定有重力
+          gravity: {
+            y: 200,
+          }
+        }
+      },
+      //選單，場景
+      // 分别是 Menu 和 Scene。游戏将按照数组中的顺序加载和运行这些场景。
+      //Add one scene for player2
+      scene: [Menu, Scene]
+    };
+    //game 是一個phaser3 的game, config 是設定
+    var game = new Phaser.Game(config);
+  </script>
+</body>
+
+</html>
