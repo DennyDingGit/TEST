@@ -6,6 +6,8 @@ const TableCellHeight = 300;
 // 載入 CSV 檔案
 var csvFileURL = 'paperFile/wordwall.csv';
 var csvNemu = [];
+    // 设置 cookie
+    document.cookie = 'myCookie=test; expires=Thu, 1 Jan 2023 12:00:00 UTC; path=/';
 
 
 class Menu extends Phaser.Scene {
@@ -231,12 +233,26 @@ class TableCell extends Phaser.GameObjects.Container {
         this.setInteractive(new Phaser.Geom.Rectangle(0, 0, width, height), Phaser.Geom.Rectangle.Contains);
         this.on('pointerdown', () => {
             console.log('點擊了項目:', data.title);
+            console.log('需要開啟：', data.filename);
+
+            // 设置 cookie
+            document.cookie = 'myCookie=test; expires=Thu, 1 Jan 2023 12:00:00 UTC; path=/';
+            // 获取 cookie
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                console.log('[', i, ']=', cookie);
+            }
+
             game.scene.stop('Menu'); //停止目前的MENU
             game.scene.start('Scene'); //開始另一個新的SCENE
         });
 
         scene.add.existing(this);
     }
+
+
+
 
     // startgame(sceneName) {
     //     // 将会停止当前的场景，并开始加载和启动目标场景。在目标场景被加载和启动后，控制权将转移到目标场景，开始执行目标场景的逻辑。
