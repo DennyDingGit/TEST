@@ -30,6 +30,17 @@ class Menu extends Phaser.Scene {
         this.button = null;
         this.particles = null;
         this.emitter = null;
+
+
+            // 讀取
+            // allCookies = document.cookie;
+
+            // 设置 cookie
+            //
+        this.newCookie = 'myCookie=test; expires=Thu, 1 Jan 2024 12:00:00 UTC; path=/';
+            // 寫入
+        document.cookie = this.newCookie;
+
     }
 
 // 在適當的地方聲明一個 XMLHttpRequest 對象
@@ -235,10 +246,10 @@ class TableCell extends Phaser.GameObjects.Container {
             console.log('點擊了項目:', data.title);
             console.log('需要開啟：', data.filename);
 
-            // 设置 cookie
-            document.cookie = 'myCookie=test; expires=Thu, 1 Jan 2023 12:00:00 UTC; path=/';
             // 获取 cookie
-            var cookies = document.cookie.split(';');
+            // 讀取
+            var allCookies = document.cookie;
+            var cookies = allCookies.split(';');
             for (var i = 0; i < cookies.length; i++) {
                 var cookie = cookies[i].trim();
                 console.log('[', i, ']=', cookie);
