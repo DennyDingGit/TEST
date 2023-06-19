@@ -5,7 +5,8 @@ const TableCellWidth = 900;
 const TableCellHeight = 300;
 // 載入 CSV 檔案
 var csvFileURL = 'paperFile/wordwall.csv';
-var csvNemu = [];
+
+
     // 设置 cookie
     document.cookie = 'myCookie=test; expires=Thu, 1 Jan 2023 12:00:00 UTC; path=/';
 
@@ -36,10 +37,15 @@ class Menu extends Phaser.Scene {
             // allCookies = document.cookie;
 
             // 设置 cookie
-            //
+            //第一個為Key ＝ value;
+            //expires   ＝ 有效期限；
+            //path      = 路徑；
         this.newCookie = 'myCookie=test; expires=Thu, 1 Jan 2024 12:00:00 UTC; path=/';
+        this.newCookie2 = 'myCookie2=test; expires=Thu, 1 Jan 2024 12:00:00 UTC; path=/';
             // 寫入
+            //cookie 可以多次寫入不同的Key ＝ value
         document.cookie = this.newCookie;
+        document.cookie = this.newCookie2;
 
     }
 
@@ -74,20 +80,29 @@ class Menu extends Phaser.Scene {
     //     // });
     // });
 
-fetch(csvFileURL)
-    .then(response => response.text())
-    .then(csvData => {
+
+    //讀取遠端的csv 檔
+    //使用fetch （URL）來讀遠端檔案
+    //.then(response => response.text())    收到response，轉成文字傳到下一層 .text()
+    //.then(csvData => { })                 收到csvData, 執行{ 閉包}
+    // funcation XXX().then()  是一個涵數串接的寫法，當前面執行結束後.then 。。。。。
+    fetch(csvFileURL).then(response => response.text()).then(csvData => {
+        //lines 被 '\n' 分開的行陣列
         const lines = csvData.split('\n');
+        //header 是csv 的第[0]行，為欄位名稱！！
         const header = lines[0].split(',');
         // const data = [];
-
         for (let i = 1; i < lines.length; i++) {
+            //line 為lines[1]開始的每一行, 被','隔開的每一欄
             const line = lines[i].split(',');
             if (line.length === header.length) {
+                //row ={} 是一個空的數組  字典
                 const row = {};
                 for (let j = 0; j < header.length; j++) {
+                    //將line 裹每一個欄，填入row 字典，對應的Key裹
                     row[header[j]] = line[j];
                 }
+                //加入一個row 到csvNemu 陣列裹
                 csvNemu.push(row);
             }
         }
@@ -144,6 +159,47 @@ class TableView {
 
         }
     }
+}
+
+function readPager(filename,array){
+  fetch('paperFile/' + filename).then(response => response.text()).then(csvData => {
+    //lines 被 '\n' 分開的行陣列
+    const lines = csvData.split('\n');
+    // const data = [];
+    for (let i = 0; i < lines.length; i++) {
+      //line 為lines[1]開始的每一行, 被','隔開的每一欄
+      const line = lines[i].split(',');
+          //row ={} 是一個空的數組  字典
+          // const row = [];
+          // for (let j = 0; j < header.length; j++) {
+            //將line 裹每一個欄，填入row 字典，對應的Key裹
+            // row[j] = line[j];
+          // }
+          //加入一個row 到csvNemu 陣列裹
+      array.push(line);
+    }
+    // console.log('-----------');
+    // paperData = array;
+  });
+}
+
+//依Level&times來選題
+function selectQustion(data){
+    // setTimeout(1000); // 设置延迟，单位为毫秒
+    var arr = [];
+    console.log('data.qusNum = ' + data.qusNum);
+    console.log('data.times = ' + data.times);
+    for (var i = 0; i < data.qusNum; i++) {
+        // arr[i] = paperData[data.qusNum * data.times + i];
+        arr.push(paperData[data.qusNum * data.times + i]);
+        // console.log('arr= [' + i + ']' + paperData[data.qusNum * data.times + i]);
+    }
+    // console.log('arr= ' + arr);
+    // 洗牌
+    // paperData = shuffleArray(arr);
+    paperData = null;
+    paperData = arr;
+    // console.log('paperData= ' + paperData);
 }
 
 
@@ -240,33 +296,65 @@ class TableCell extends Phaser.GameObjects.Container {
         );
         this.add(this.progressBarFill); //底色
 
+        //MARK: - 按下選單了
         // 點擊事件
         this.setInteractive(new Phaser.Geom.Rectangle(0, 0, width, height), Phaser.Geom.Rectangle.Contains);
         this.on('pointerdown', () => {
             console.log('點擊了項目:', data.title);
             console.log('需要開啟：', data.filename);
 
-            // 获取 cookie
-            // 讀取
-            var allCookies = document.cookie;
-            var cookies = allCookies.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
-                console.log('[', i, ']=', cookie);
-            }
+            // // 获取 cookie
+            // // 讀取
+            // var allCookies = document.cookie;
+            // var cookies = allCookies.split(';');
+            // for (var i = 0; i < cookies.length; i++) {
+            //     var cookie = cookies[i].trim();
+            //     console.log('[', i, ']=', cookie);
+            // }
 
-            game.scene.stop('Menu'); //停止目前的MENU
-            game.scene.start('Scene'); //開始另一個新的SCENE
+            //讀入整個題庫
+            readPager(data.filename + '.csv', paperData);
+            console.log('原始考題＝' + paperData);
+
+            //找出按下的是哪一個考卷
+            for (var i = 0; i < csvNemu.length; i++) {
+                if (csvNemu[i].filename === data.filename) {
+                    pagerIndex = i;
+                    break;
+                }
+            }
+            console.log('按下的 ' + data.filename + 'at index= ' + pagerIndex);
+            pagerName = data.title;
+
+            allQustions = data.qustions;
+            oneTimeQustions = data.qusNum;
+            //依Level&times來選題
+            // selectQustion(paperData, data);
+
+            // 设置延迟，单位为毫秒
+            // window.setTimeout(() => selectQustion(paperData, data), 2000);
+            window.setTimeout(function(){
+                game.scene.stop('Menu'); //停止目前的MENU
+                selectQustion( data);
+                console.log('考題＝' + paperData);
+                switch (data.Icon) {
+                    case '配對':
+                        // console.log('配對');
+                        game.scene.start('pairGame'); //開始另一個新的SCENE
+                        break;
+                    case '連連看':
+                        // console.log('連連看');
+                        game.scene.start('Scene'); //開始另一個新的SCENE
+                        break;
+                    case '字首':
+                        // console.log('字首');
+                        game.scene.start('Scene'); //開始另一個新的SCENE
+                        break;
+                }
+            },1000);
         });
 
         scene.add.existing(this);
     }
 
-
-
-
-    // startgame(sceneName) {
-    //     // 将会停止当前的场景，并开始加载和启动目标场景。在目标场景被加载和启动后，控制权将转移到目标场景，开始执行目标场景的逻辑。
-    //     sceneName.start('Scene');
-    // }
 }

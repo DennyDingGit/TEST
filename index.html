@@ -13,10 +13,22 @@
 
   </style>
 
+  <script>
+    var csvNemu = [];
+    var paperData = [];
+    var pagerIndex = 0;
+    var pagerName = '';
+
+    var allQustions = null; //整張考卷共有多少題
+    var oneTimeQustions = null; //一次要出多少題
+  </script>
+
   <!-- <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser-arcade-physics.min.js"></script> -->
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.5.0/papaparse.min.js"></script> -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.50.0/dist/phaser.min.js"></script>
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.5.0/papaparse.min.js"></script> -->
+  <script src="common.js"></script>
+  <script src="pairGame.js"></script>
   <script src="scene.js"></script>
   <script src="player.js"></script>
   <script src="enemy.js"></script>
@@ -48,7 +60,7 @@
       //選單，場景
       // 分别是 Menu 和 Scene。游戏将按照数组中的顺序加载和运行这些场景。
       //Add one scene for player2
-      scene: [Menu, Scene]
+      scene: [Menu, pairGame, Scene]
       // scene: [Menu, Scene]
       // scene: [MyScene]
       // game.scene.add('MyScene', MyScene, true);
