@@ -121,7 +121,7 @@ class Scene extends Phaser.Scene {
         let x = 120;
         let y = 550;
 
-    for (let i = 0; i < 13; i++) {
+        for (let i = 0; i < 13; i++) {
           const enemy = new Enemy(this, x, y).setInteractive();
           this.enemys.push(enemy);
           x += 120;

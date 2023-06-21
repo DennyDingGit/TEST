@@ -1,6 +1,11 @@
 var buttonW = 180;
 var buttonH = 50;
 
+var parking = [];     //答案的停車區，前一半是左邊，後一半是右邊
+var arrayAns = [];    //作案用的卡片
+var arrayAnstext = [];    //作案用的卡片上的文字
+
+
 function animation(scene,item,x,y){
     // 创建 Tween 动画对象
     scene.tweens.add({
@@ -38,10 +43,11 @@ class ansButton{
         this.pointerOffsetY = 0;
         this.btOn = false;
 
-        this.bt = scene.add.image(x, y, butKey);
-        this.bt.setOrigin(0, 0);
+        this.bt = scene.add.image(0, 0, butKey);
+        // this.bt.setOrigin(0, 0);
         this.bt.displayWidth = buttonW;
         this.bt.displayHeight = buttonH;
+        // this.bt.setInteractive();
         // // this.add(this.bt); // 將圖示添加到容器中
         // const label = scene.add.text(x + 20, y + 18, text, {
         //     fontFamily: 'Arial',
@@ -49,78 +55,127 @@ class ansButton{
         //     color: '#303030',
         // });
 
+        // 创建一个新的Phaser容器
+        var container = scene.add.container(x + buttonW / 2, y + buttonH/2);
+
+        // 创建一个形状对象
+        var shape = scene.add.rectangle(0, 0, buttonW, buttonH, 0xffff00,0.1);
+
+        // 将形状添加到容器中
+        container.add(shape);
+
+        // 设置容器的大小
+        container.setSize(buttonW, buttonH);
+        // container.setOrigin(0);
+
+        // 使容器可交互
+        container.setInteractive();
+
+        // this.shape = scene.add.rectangle(0, 0, buttonW, buttonH, 0xffff00, 1); // 創建一個矩形作為容器的形狀物件
+
+        // this.container1.setInteractive(); // 設定容器為可互動元素
+        // this.container1 = scene.add.container(x, y, this.bt);
+        // this.container1 = scene.add.container(x, y, this.shape);
+        container.add(this.bt);
+        // this.container1.add(this.shape); // 將形狀物件添加到容器內
+        this.text = scene.add.text(-20, 0, text, { fontFamily: 'Arial', fontSize: '24px', fill: '#f303030' });
+        // this.text.setOrigin(0);
+        container.add(this.text);
+
         // 创建文本
-        this.text2 = scene.add.text(x + 20  , y + 20 , text, { fontFamily: 'Arial', fontSize: '24px', fill: '#f303030' });
-        this.text2.setOrigin(0);
+        // var text2 = scene.add.text(x + 20  , y + 20 , text, { fontFamily: 'Arial', fontSize: '24px', fill: '#f303030' });
+        // text2.setOrigin(0);
         // 设置按钮和文本为可交互
-        this.text2.setInteractive();
-
+        // this.text2.setInteractive();
+        // this.bt.add(text2);
         // 设置按钮为可交互
-        this.bt.setInteractive();
+        container.setInteractive();
 
-        this.bt.on('pointerdown', pointer => {
+        arrayAns.push(container);
+        // console.log('arrayAns.length=' + arrayAns.length);
+        // arrayAnstext.push ( this.text2);
+
+        //按下
+        container.on('pointerdown', pointer => {
             // 记录按下时的按钮位置
             this.btOn = true;
-            this.buttonStartX = this.bt.x;
-            this.buttonStartY = this.bt.y;
-            this.pointerOffsetX = pointer.x - this.bt.x;
-            this.pointerOffsetY = pointer.y - this.bt.y;
-            console.log('x=' + this.bt.x + ' y=' + this.bt.y);
+            this.buttonStartX = container.x ;
+            this.buttonStartY = container.y ;
+            this.pointerOffsetX = pointer.x - container.x;// - buttonW / 2;
+            this.pointerOffsetY = pointer.y - container.y;// - buttonH / 2;
+            console.log('按下了(x=' + container.x + ' y=' + container.y + ')');
             // console.log('pointer x=' + pointer.x + ' y=' + pointer.y);
+            scene.children.bringToTop(container);
         });
 
-        this.bt.on('pointermove', pointer => {
+        //移動
+        container.on('pointermove', pointer => {
             // 记录按下时的按钮位置
             // 计算按钮的新位置
             if (this.btOn == true) {
                 const newX = pointer.x - this.pointerOffsetX;
                 const newY = pointer.y - this.pointerOffsetY;
-                const newTextX = newX + 20;
-                const newTextY = newY + 20;
-
                 // 更新按钮位置
-                this.bt.setPosition(newX, newY);
-                this.text2.setPosition(newTextX, newTextY);
+
+                container.setPosition(newX, newY);
+                // this.children.bringToTop(this.text2);
+                // this.text2.setPosition(newTextX, newTextY);
+                // this.text2.setDepth(0);
             }
         });
 
-        this.bt.on('pointerup', pointer => {
+        //放開
+        container.on('pointerup', pointer => {
             this.btOn = false;
             this.foundParking = false;
+            //先看看放開的地方是不是停車區
             for (var i = 0; i < parking.length; i++) {
                 // console.log('[' + i + ']=(' + parking[i][0] + ',' + parking[i][1] + ')');
                 //找出放開時的parking 位置
-                if ((parking[i][0]<=pointer.x)&(parking[i][1]<=pointer.y)&((parking[i][0] + buttonW )>=pointer.x)&((parking[i][1] + buttonH) >=pointer.y)){
-                  // console.log('找到了！');
-                  const newX = parking[i][0] ;
-                  const newY = parking[i][1] ;
-                  const newTextX = newX + 20;
-                  const newTextY = newY + 20;
+                if (
+                    (parking[i][0] <= pointer.x) &
+                    (parking[i][1] <= pointer.y) &
+                    (parking[i][0] + buttonW >= pointer.x) &
+                    (parking[i][1] + buttonH >= pointer.y)
+                ) {
+                    // console.log('在停車區！！');
+                    const newX = parking[i][0];
+                    const newY = parking[i][1];
 
-                  // 更新按钮位置
-                  this.bt.setPosition(newX, newY);
-                  this.text2.setPosition(newTextX, newTextY);
-                  this.foundParking = true;
-                  break;
+                    //是停車區
+                    this.foundParking = true;
+                    // console.log('arrayAns.length=' + arrayAns.length);
+                    //查查看這個停車區有沒有其他的答案
+                    for (var j = 0; j < arrayAns.length; j++) {
+                        // console.log('(x=' + arrayAns[j].x + 'y=' + arrayAns[j].y+')');
+
+                        if ((parking[i][0] == (arrayAns[j].x - buttonW / 2)) & (parking[i][1] == (arrayAns[j].y - buttonH/2))) {
+                            //這個停車區有其他答案了
+                            console.log('這個停車區有其他答案了');
+                            // 更新按钮位置
+                            animation(scene, arrayAns[j], this.buttonStartX , this.buttonStartY );
+                            // animation(scene, arrayAnstext[j], newTextX, newTextY);
+                        }
+                    }
+                    // 更新按钮位置
+                    container.setPosition(newX + buttonW / 2, newY + buttonH / 2);
+                    break;
                 }
             }
-            if (!this.foundParking){
+            //沒有在停車區
+            if (!this.foundParking) {
                 const newX = this.buttonStartX;
                 const newY = this.buttonStartY;
-                const newTextX = newX + 20;
-                const newTextY = newY + 20;
-
                 // 更新按钮位置
-                animation(scene,this.bt, newX, newY);
-                animation(scene,this.text2, newTextX, newTextY);
+                animation(scene, container, this.buttonStartX, this.buttonStartY);
+                // animation(scene, this.bt, newX, newY);
+                // animation(scene, this.text2, newTextX, newTextY);
                 this.foundParking = false;
             }
         });
     }
 
 }
-
-var parking = [];
 
 class pairGame extends Phaser.Scene {
     //建構器
@@ -131,7 +186,7 @@ class pairGame extends Phaser.Scene {
         this.oneTimeQustions = null;
         this.bt = null;
         this.newPaperData = [];
-        this.parking = [];
+        // this.parking = [];
 
     }
 
@@ -193,23 +248,23 @@ class pairGame extends Phaser.Scene {
         }
 
         for (var i = 0; i < oneTimeQustions; i++) {
-            this.x = 500;
-            this.y = 100 * i + 10
-            this.bt = this.add.image(this.x, this.y, 'parking');
-            this.bt.setOrigin(0, 0);
-            this.bt.displayWidth = buttonW;
-            this.bt.displayHeight = buttonH;
-            this.l = [this.x, this.y];
-            parking.push(this.l);
+          this.x = 500;
+          this.y = 100 * i + 10
+          this.bt = this.add.image(this.x, this.y, 'parking');
+          this.bt.setOrigin(0, 0);
+          this.bt.displayWidth = buttonW;
+          this.bt.displayHeight = buttonH;
+          this.l = [this.x, this.y];
+          parking.push(this.l);
         }
 
-
+        //作答卡片
         for (var i = 0; i < oneTimeQustions; i++) {
-            this.x = 200;
-            this.y = 100 * i + 10;
-            //顯示左邊的答案（洗亂過）
-            this.bt = new ansButton(this, this.x, this.y, 'ans', this.newPaperData[i][0]);
-          }
+          this.x = 200;
+          this.y = 100 * i + 10;
+          //顯示左邊的答案（洗亂過）
+          this.bt = new ansButton(this, this.x, this.y, 'ans', this.newPaperData[i][0]);
+        }
     }
 
     update(){
