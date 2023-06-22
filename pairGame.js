@@ -5,6 +5,7 @@ var parking = [];     //答案的停車區，前一半是左邊，後一半是�
 var arrayAns = [];    //作案用的卡片
 var arrayAnstext = [];    //作案用的卡片上的文字
 
+var scope = 0;
 
 function animation(scene,item,x,y){
     // 创建 Tween 动画对象
@@ -26,17 +27,7 @@ function animation(scene,item,x,y){
 class ansButton{
     //建構器
     constructor(scene, x, y, butKey, text) {
-        //preload 時有載入 player 動畫
-        //將這程式碼輸入後之後就能直接套入此設定做使用，"player"為我們之前在場景匯入圖片時設定的角色圖片名稱，需輸入角色才會顯現。
-        // super(this, this.x, this.y, 'button');
-        // super(scene, x, y, butKey, text);
-        this.scene = scene; //：設定場景，之後能夠輸入場景，使角色套入該場景。
-        // scene.physics.world.enable(this); //：設定角色會受物理設定影響。
-        // scene.add.existing(this);         //：將角色匯入至場景中。
-        // this.setBounce(0.9);              //彈跳系數 1 是全反彈
-        // this.setCollideWorldBounds(true); //設定碰撞邊界, 設定的是整個player 的邊界
-        // // this.setCollideWorldBounds(false); //設定碰撞邊界
-
+        this.scene = scene; //：設定場景，之後能夠輸入場景，使角色套入該場景
         this.buttonStartX = 0;
         this.buttonStartY = 0;
         this.pointerOffsetX = 0;
@@ -44,57 +35,29 @@ class ansButton{
         this.btOn = false;
 
         this.bt = scene.add.image(0, 0, butKey);
-        // this.bt.setOrigin(0, 0);
+        
         this.bt.displayWidth = buttonW;
         this.bt.displayHeight = buttonH;
-        // this.bt.setInteractive();
-        // // this.add(this.bt); // 將圖示添加到容器中
-        // const label = scene.add.text(x + 20, y + 18, text, {
-        //     fontFamily: 'Arial',
-        //     fontSize: '24px',
-        //     color: '#303030',
-        // });
-
         // 创建一个新的Phaser容器
         var container = scene.add.container(x + buttonW / 2, y + buttonH/2);
-
         // 创建一个形状对象
         var shape = scene.add.rectangle(0, 0, buttonW, buttonH, 0xffff00,0.1);
-
         // 将形状添加到容器中
         container.add(shape);
-
         // 设置容器的大小
         container.setSize(buttonW, buttonH);
         // container.setOrigin(0);
-
         // 使容器可交互
         container.setInteractive();
-
-        // this.shape = scene.add.rectangle(0, 0, buttonW, buttonH, 0xffff00, 1); // 創建一個矩形作為容器的形狀物件
-
-        // this.container1.setInteractive(); // 設定容器為可互動元素
-        // this.container1 = scene.add.container(x, y, this.bt);
-        // this.container1 = scene.add.container(x, y, this.shape);
         container.add(this.bt);
         // this.container1.add(this.shape); // 將形狀物件添加到容器內
-        this.text = scene.add.text(-20, 0, text, { fontFamily: 'Arial', fontSize: '24px', fill: '#f303030' });
+        this.text = scene.add.text(-(buttonW/3), -10, text, { fontFamily: 'Arial', fontSize: '24px', fill: '#f303030' });
         // this.text.setOrigin(0);
         container.add(this.text);
-
-        // 创建文本
-        // var text2 = scene.add.text(x + 20  , y + 20 , text, { fontFamily: 'Arial', fontSize: '24px', fill: '#f303030' });
-        // text2.setOrigin(0);
-        // 设置按钮和文本为可交互
-        // this.text2.setInteractive();
-        // this.bt.add(text2);
         // 设置按钮为可交互
         container.setInteractive();
 
         arrayAns.push(container);
-        // console.log('arrayAns.length=' + arrayAns.length);
-        // arrayAnstext.push ( this.text2);
-
         //按下
         container.on('pointerdown', pointer => {
             // 记录按下时的按钮位置
@@ -106,6 +69,13 @@ class ansButton{
             console.log('按下了(x=' + container.x + ' y=' + container.y + ')');
             // console.log('pointer x=' + pointer.x + ' y=' + pointer.y);
             scene.children.bringToTop(container);
+            // for(var k=0;k<container.length;k++){
+            //     console.log('container['+k+']=' + container.list[k]);
+            // }
+            // utterance.text = '';
+            // window.speechSynthesis.speak(utterance);
+            utterance.text = container.list[2].text;
+            window.speechSynthesis.speak(utterance);
         });
 
         //移動
@@ -174,8 +144,74 @@ class ansButton{
             }
         });
     }
-
 }
+
+class QuestionButton{
+    //建構器
+    constructor(scene, x, y, butKey, text) {
+        //preload 時有載入 player 動畫
+        this.scene = scene; //：設定場景，之後能夠輸入場景，使角色套入該場景。
+        this.bt = scene.add.image(0, 0, butKey);
+        this.bt.displayWidth = buttonW;
+        this.bt.displayHeight = buttonH;
+        // 创建一个新的Phaser容器
+        var container = scene.add.container(x + buttonW / 2, y + buttonH/2);
+        // 创建一个形状对象
+        var shape = scene.add.rectangle(0, 0, buttonW, buttonH, 0xffff00,0.1);
+        // 将形状添加到容器中
+        container.add(shape);
+        // 设置容器的大小
+        container.setSize(buttonW, buttonH);
+        // container.setOrigin(0);
+        // 使容器可交互
+        container.setInteractive();
+        container.add(this.bt);
+        this.text = scene.add.text(-(buttonW/3), -10, text, { fontFamily: 'Arial', fontSize: '24px', fill: '#f303030' });
+        container.add(this.text);
+        container.setInteractive();
+        //按下
+        container.on('pointerdown', pointer => {
+            utterance.text = container.list[2].text;
+            window.speechSynthesis.speak(utterance);
+        });
+    }
+}
+
+
+class SendOutButton{
+    //建構器
+    constructor(scene, x, y, w, h, butKey, text ,func) {
+        //preload 時有載入 player 動畫
+        this.scene = scene; //：設定場景，之後能夠輸入場景，使角色套入該場景。
+        this.bt = scene.add.image(0, 0, butKey);
+        this.bt.displayWidth = w;
+        this.bt.displayHeight = h;
+        // 创建一个新的Phaser容器
+        var container = scene.add.container(x + w / 2, y + h/2);
+        // 创建一个形状对象
+        var shape = scene.add.rectangle(0, 0, w, h, 0xffff00,0.1);
+        // 将形状添加到容器中
+        container.add(shape);
+        // 设置容器的大小
+        container.setSize(w, h);
+        // container.setOrigin(0);
+        // 使容器可交互
+        container.setInteractive();
+        container.add(this.bt);
+        this.text = scene.add.text(-(w/3), -10, text, { fontFamily: 'Arial', fontSize: '24px', fill: '#f303030' });
+        container.add(this.text);
+        container.setInteractive();
+        //按下
+        container.on('pointerdown', pointer => {
+            // utterance.text = container.list[2].text;
+            // window.speechSynthesis.speak(utterance);
+            func();
+        });
+    }
+}
+
+// var bt1 = null;
+var scene = null;
 
 class pairGame extends Phaser.Scene {
     //建構器
@@ -187,7 +223,7 @@ class pairGame extends Phaser.Scene {
         this.bt = null;
         this.newPaperData = [];
         // this.parking = [];
-
+        // this.s = this;
     }
 
     //預載入
@@ -200,19 +236,14 @@ class pairGame extends Phaser.Scene {
         this.load.image('button', 'PNG/simple/7_bg.png');
         this.load.image('parking', 'PNG/simple/6_bg.png');
         this.load.image('ans', 'PNG/simple/11_bg.png');
+        this.load.image('ok','PNG/ok.png');
+        this.load.image('ng','PNG/ng.png');
     }
     //phaser3,Scene 的setup
     create() {
+        scope = 0;
+        scene = this;
         // 背景
-        // this.background = this.add.image(0, 0, 'backgroud');
-        // background.setOrigin(-width/2, -height/2);
-        // this.background.setOrigin(0, 0);
-        // this.background.displayWidth = this.game.config.width ;
-        // this.background.displayHeight = this.game.config.height;
-
-        // console.log('game.config.width= ' + this.game.config.width);
-        // console.log('game.config.Height= ' + this.game.config.height);
-
         // 在场景中创建精灵对象
         // const sprite = this.add.sprite(0, 0, 'backgroud');
         const sprite = this.add.sprite(this.game.config.width / 2, this.game.config.height / 2, 'backgroud');
@@ -222,23 +253,21 @@ class pairGame extends Phaser.Scene {
 
         //顯示右邊的題目
         for (var i=0;i< oneTimeQustions;i++){
-
-            this.bt = this.add.image(700, 100 * i+10, 'button');
-            this.bt.setOrigin(0, 0);
-            this.bt.displayWidth = buttonW;
-            this.bt.displayHeight = buttonH;
-            // this.add(this.bt); // 將圖示添加到容器中
-            const label = this.add.text(700+20, 100 * i+ 18, paperData[i][1], { fontFamily: 'Arial', fontSize: '24px', color: '#ffff00' });
+            this.bt = new QuestionButton(this, 700, 80 * i +10, 'button', paperData[i][1]);
+            console.log('題＝'+paperData[i][0]+' 答＝'+paperData[i][1]);
         }
 
         console.log('paperData.length='+paperData.length);
 
         // 洗牌
-        this.newPaperData = shuffleArray(paperData);
+        this.newPaperData = paperData.slice(); // 创建原始数组的副本
+        this.newPaperData = shuffleArray(this.newPaperData);
+
+        
 
         for (var i = 0; i < oneTimeQustions; i++) {
             this.x = 200;
-            this.y = 100 * i + 10
+            this.y = 80 * i + 10
             this.bt = this.add.image(this.x, this.y, 'parking');
             this.bt.setOrigin(0, 0);
             this.bt.displayWidth = buttonW;
@@ -249,7 +278,7 @@ class pairGame extends Phaser.Scene {
 
         for (var i = 0; i < oneTimeQustions; i++) {
           this.x = 500;
-          this.y = 100 * i + 10
+          this.y = 80 * i + 10
           this.bt = this.add.image(this.x, this.y, 'parking');
           this.bt.setOrigin(0, 0);
           this.bt.displayWidth = buttonW;
@@ -261,10 +290,44 @@ class pairGame extends Phaser.Scene {
         //作答卡片
         for (var i = 0; i < oneTimeQustions; i++) {
           this.x = 200;
-          this.y = 100 * i + 10;
+          this.y = 80 * i + 10;
           //顯示左邊的答案（洗亂過）
           this.bt = new ansButton(this, this.x, this.y, 'ans', this.newPaperData[i][0]);
         }
+
+        // bt1 = this.add.image(0, 0, 'ok');
+        // bt1.setVisible(false);
+
+
+        this.bt = new SendOutButton(this,SendOutBtX,SendOutBtY,SendOutBtW,SendOutBtH,'parking' ,'交卷', function(){
+            // utterance.text = '交卷了！！';
+            // window.speechSynthesis.speak(utterance);
+            for (var i=0;i< oneTimeQustions;i++){
+                //答案
+                var text = paperData[i][0];
+                // console.log('['+i+']='+text+paperData[i][1]);
+                //掃出Parting 區上的答案
+                var get = false;
+                for(var j=0;j< arrayAns.length;j++){
+                    // console.log('x= '+ parking[i+10][0]);
+                    if ((parking[i+ 10][0] == (arrayAns[j].x - buttonW / 2)) & (parking[i+10][1] == (arrayAns[j].y - buttonH/2))) {
+                    // if ((parking[oneTimeQustions + i][0] == (arrayAns[j].x - buttonW / 2)) & (parking[oneTimeQustions+i][1] == (arrayAns[j].y - buttonH/2))) {
+                        if (arrayAns[j].list[2].text == text){
+                            scope = scope + 1;
+                            scene.add.image(parking[i+ 10][0]+ buttonW, parking[i+ 10][1]+ 20,'ok');
+                            get = true;
+                        // }else{
+                            // scene.add.image(parking[i+ 10][0]+ buttonW, parking[i+ 10][1] + 20,'ng');
+                        }
+                    }
+                }
+                if(!get){
+                    scene.add.image(parking[i+ 10][0]+ buttonW, parking[i+ 10][1] + 20,'ng');
+                }
+                //得分
+            }
+            console.log('得分＝'+ scope);
+        });
     }
 
     update(){

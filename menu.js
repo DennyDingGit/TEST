@@ -335,11 +335,17 @@ class TableCell extends Phaser.GameObjects.Container {
             // window.setTimeout(() => selectQustion(paperData, data), 2000);
             window.setTimeout(function(){
                 game.scene.stop('Menu'); //停止目前的MENU
+                utterance.text = data.title;
+                // 使用 SpeechSynthesisUtterance 物件進行文字轉語音
+                // utterance.volume = 0.8;  // 設置音量為 0，將以背景音方式播放
+                // utterance.rate = 0.8;  // 調整速率以符合需求
+                // utterance.pitch = 0.8;   // 調整音調以符合需求
+                window.speechSynthesis.speak(utterance);
                 selectQustion( data);
                 console.log('考題＝' + paperData);
                 switch (data.Icon) {
                     case '配對':
-                        // console.log('配對');
+                        // console.log('配對');    
                         game.scene.start('pairGame'); //開始另一個新的SCENE
                         break;
                     case '連連看':
@@ -351,7 +357,7 @@ class TableCell extends Phaser.GameObjects.Container {
                         game.scene.start('Scene'); //開始另一個新的SCENE
                         break;
                 }
-            },1000);
+            },500);
         });
 
         scene.add.existing(this);
